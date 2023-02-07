@@ -3,9 +3,7 @@
 import numpy as np
 import Funcs as F
 from Constants import GATES
-
-
-# GATES['Y'] *= 0-1j
+from math import isclose
 
 
 def Puzzle(state=None):
@@ -16,6 +14,8 @@ def Puzzle(state=None):
     second_bit = True  # Which qubit is being operated on
     state_str = F.state_to_str(state)
     gate_str = ''
+
+    print(f"[ Operating on 2nd qubit ]")
 
     while True:
         display(state)
@@ -36,7 +36,7 @@ def Puzzle(state=None):
                 gate = GATES["CNOT21"]
         elif inp[0] == 'S':  # Swap
             second_bit = not second_bit
-            print(f"Operating on {'2nd' if second_bit else '1st'} qubit")
+            print(f"[ Operating on {'2nd' if second_bit else '1st'} qubit ]")
             continue
         else:
             try:  # Other gate
@@ -59,53 +59,45 @@ def Puzzle(state=None):
 
 def display(state):
     """Show 2 by 2 dot grid representation."""
-    pass
+    insqrt2 = 1/np.sqrt(2)
+    strings = []
+    for i in state:
+        if isclose(i.real, 1, rel_tol=1e-15):
+            strings.append(" +1  ")
+        elif isclose(i.real, -1, rel_tol=1e-15):
+            strings.append(" -1  ")
+        elif isclose(i.imag, 1, rel_tol=1e-15):
+            strings.append(" +i  ")
+        elif isclose(i.imag, -1, rel_tol=1e-15):
+            strings.append(" -i  ")
 
-'''
-def show_grid(state, std_order):
-    """ Display puzzle game grid with given state. current_bit should be passed as std_order. """
+        elif isclose(i.real, insqrt2, rel_tol=1e-15):
+            strings.append("+1/√2")
+        elif isclose(i.real, -insqrt2, rel_tol=1e-15):
+            strings.append("-1/√2")
+        elif isclose(i.imag, insqrt2, rel_tol=1e-15):
+            strings.append("+i/√2")
+        elif isclose(i.imag, -insqrt2, rel_tol=1e-15):
+            strings.append("-i/√2")
 
-    # NOTE NOTE NOTE: Problems with imaginary numbers will arrise. Change Y gate to -i * Y for this game to work
-
-    h_bar = "   +---+---+     +---+---+ "
-    v_bar = " | "
-    round_margin = 0.00001
-
-    # Inner loops: 0, 1, 2, 3 if std_order; 0, 2, 1, 3 otherwise
-
-    for top_row in (True, False):
-        print(h_bar)
-        if top_row:
-            print(end=" +")
+        elif isclose(i.real, 1/2, rel_tol=1e-15):
+            strings.append("+1/2 ")
+        elif isclose(i.real, -1/2, rel_tol=1e-15):
+            strings.append("-1/2 ")
+        elif isclose(i.imag, 1/2, rel_tol=1e-15):
+            strings.append("+i/2 ")
+        elif isclose(i.imag, -1/2, rel_tol=1e-15):
+            strings.append("-i/2 ")
+        
         else:
-            print(end=" -")
-
-        for i in (0, 1 if std_order else 2): # First and second box
-            print(end=v_bar)
-            if top_row and (state[i] > round_margin): # + on top row
-                print(end='0')
-            elif (not top_row) and (state[i] < -round_margin): # - on bottom row
-                print(end='0')
-            else:
-                print(end=' ')
-
-        print(v_bar, end='   ')
-
-        for i in (2 if std_order else 1, 3): # Third and fourth box
-            print(end=v_bar)
-            if top_row and (state[i] > round_margin): # + on top row
-                print(end='0')
-            elif (not top_row) and (state[i] < -round_margin): # - on bottom row
-                print(end='0')
-            else:
-                print(end=' ')
-        print(v_bar)
-    print(h_bar)
-    if std_order:
-        print("   |00> |01>     |10> |11>\n")
-    else:
-        print("   |00> |10>     |01> |11>\n")
-'''
+            strings.append("     ")
+    
+    print()
+    print("  |00>    |01>  ")
+    print(f" {strings[0]}    {strings[1]} ", '\n')
+    print(f" {strings[2]}    {strings[3]} ")
+    print("  |10>  |11>  ")
+    print()
         
 
 if __name__ == "__main__":
