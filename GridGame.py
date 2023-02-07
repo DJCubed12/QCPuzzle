@@ -18,7 +18,7 @@ def Puzzle(state=None):
     gate_str = ''
 
     while True:
-        show_grid(state, second_bit)
+        display(state)
 
         inp = input("Enter a gate (X, Y, Z, H, CNOT), Q to quit, or S to swap: \n").upper()
         print()
@@ -34,12 +34,11 @@ def Puzzle(state=None):
             else:
                 gate_str = "CNOT21"
                 gate = GATES["CNOT21"]
+        elif inp[0] == 'S':  # Swap
+            second_bit = not second_bit
+            print(f"Operating on {'2nd' if second_bit else '1st'} qubit")
+            continue
         else:
-            if inp[0] == 'S':  # Swap
-                second_bit = not second_bit
-                print(f"Columns Swapped (Operating on {'2nd' if second_bit else '1st'} qubit)")
-                continue
-
             try:  # Other gate
                 gate = F.str_to_gate(inp)
             except KeyError:  # Invalid input
@@ -56,6 +55,11 @@ def Puzzle(state=None):
         state = np.matmul(gate, state)
         state_str = F.state_to_str(state)
         print(state_str)
+
+
+def display(state):
+    """Show 2 by 2 dot grid representation."""
+    pass
 
 '''
 def show_grid(state, std_order):
