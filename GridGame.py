@@ -178,13 +178,18 @@ def draw_frame(screen, font):
 
     for color, label in button_sequence:
         pygame.draw.rect(screen, color, r)
-        screen.blit(font.render(label, True, WHITE), r)
+        screen.blit(font.render(label, False, WHITE), r)
         r.y += 2*SIZE_FACTOR
     
     for color, label in reversed(button_sequence):
         r.x += 2*SIZE_FACTOR
         pygame.draw.rect(screen, color, r)
-        screen.blit(font.render(label, True, WHITE), r)
+        screen.blit(font.render(label, False, WHITE), r)
+
+    screen.blit(font.render("|00>", False, WHITE), (2*SIZE_FACTOR, 9*SIZE_FACTOR))
+    screen.blit(font.render("|01>", False, WHITE), (10*SIZE_FACTOR, 9*SIZE_FACTOR))
+    screen.blit(font.render("|10>", False, WHITE), (2*SIZE_FACTOR, SIZE_FACTOR/2))
+    screen.blit(font.render("|11>", False, WHITE), (10*SIZE_FACTOR, SIZE_FACTOR/2))
 
 
 class Quit(Exception):
@@ -193,6 +198,9 @@ class Quit(Exception):
 
 
 if __name__ == "__main__":
+    if SIZE_FACTOR % 2:
+        SIZE_FACTOR += 1
+
     print()
 
     main()
