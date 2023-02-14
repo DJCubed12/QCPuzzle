@@ -1,15 +1,34 @@
 """ Console prototype using 4 points and symbols as a Quantum Puzzle Game for OURE. """
 
 import numpy as np
+import pygame
 import Funcs as F
 from Constants import GATES
 from math import isclose
+
+SCREEN_SIZE = (400, 400)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+COLOR_CODE = {
+    '1': (255, 0, 0),
+    'i': (0, 255, 0),
+    '-1': (0, 0, 255),
+    '-i': (255, 0, 255)
+}
+COORDS = (
+    (90, 90),  # |00>
+    (90, 290), # |01>
+    (290, 90), # |10>
+    (290, 290) # |11>
+)
+NORM_RADIUS = 20
 
 
 def Puzzle(state=None):
     """ OURE Project prototype. """
     if state is None:
         state = F.str_to_state("|00>")
+    screen = pygame.display.set_mode(SCREEN_SIZE)
 
     second_bit = True  # Which qubit is being operated on
     state_str = F.state_to_str(state)
@@ -18,7 +37,7 @@ def Puzzle(state=None):
     print(f"[ Operating on 2nd qubit ]")
 
     while True:
-        display(state)
+        display(state, screen)
 
         inp = input("Enter a gate (X, Y, Z, H, CNOT), Q to quit, or S to swap: \n").upper()
         print()
@@ -57,50 +76,57 @@ def Puzzle(state=None):
         print(state_str)
 
 
-def display(state):
+def display(state, screen):
     """Show 2 by 2 dot grid representation."""
+    FONT = pygame.font.SysFont("Britannic Bold", 40)
+    screen.fill(BLACK)
+
     insqrt2 = 1/np.sqrt(2)
-    strings = []
-    for i in state:
-        if isclose(i.real, 1, rel_tol=1e-15):
-            strings.append(" +1  ")
+    for i, coord in zip(state, COORDS):
+        get_box = lambda r : (*(i - r for i in coord), *(i + r for i in coord))
+
+        if isclose(i.real, 1, rel_tol=1e-15): 
+            pygame.draw.rect(screen, COLOR_CODE['1'], get_box(NORM_RADIUS))
         elif isclose(i.real, -1, rel_tol=1e-15):
-            strings.append(" -1  ")
+            pygame.draw.rect(screen, COLOR_CODE['i'], get_box(NORM_RADIUS))
         elif isclose(i.imag, 1, rel_tol=1e-15):
-            strings.append(" +i  ")
+            pygame.draw.rect(screen, COLOR_CODE['-1'], get_box(NORM_RADIUS))
         elif isclose(i.imag, -1, rel_tol=1e-15):
-            strings.append(" -i  ")
+            pygame.draw.rect(screen, COLOR_CODE['-i'], get_box(NORM_RADIUS))
 
         elif isclose(i.real, insqrt2, rel_tol=1e-15):
-            strings.append("+1/√2")
+            pygame.draw.rect(screen, COLOR_CODE['1'], get_box(NORM_RADIUS/2))
         elif isclose(i.real, -insqrt2, rel_tol=1e-15):
-            strings.append("-1/√2")
+            pygame.draw.rect(screen, COLOR_CODE['i'], get_box(NORM_RADIUS/2))
         elif isclose(i.imag, insqrt2, rel_tol=1e-15):
-            strings.append("+i/√2")
+            pygame.draw.rect(screen, COLOR_CODE['-1'], get_box(NORM_RADIUS/2))
         elif isclose(i.imag, -insqrt2, rel_tol=1e-15):
-            strings.append("-i/√2")
+            pygame.draw.rect(screen, COLOR_CODE['-i'], get_box(NORM_RADIUS/2))
 
         elif isclose(i.real, 1/2, rel_tol=1e-15):
-            strings.append("+1/2 ")
+            pygame.draw.rect(screen, COLOR_CODE['1'], get_box(NORM_RADIUS/4))
         elif isclose(i.real, -1/2, rel_tol=1e-15):
-            strings.append("-1/2 ")
+            pygame.draw.rect(screen, COLOR_CODE['i'], get_box(NORM_RADIUS/4))
         elif isclose(i.imag, 1/2, rel_tol=1e-15):
-            strings.append("+i/2 ")
+            pygame.draw.rect(screen, COLOR_CODE['-1'], get_box(NORM_RADIUS/4))
         elif isclose(i.imag, -1/2, rel_tol=1e-15):
-            strings.append("-i/2 ")
-        
-        else:
-            strings.append("     ")
-    
-    print()
-    print("  |00>    |01>  ")
-    print(f" {strings[0]}    {strings[1]} ", '\n')
-    print(f" {strings[2]}    {strings[3]} ")
-    print("  |10>  |11>  ")
-    print()
+            pygame.draw.rect(screen, COLOR_CODE['-i'], get_box(NORM_RADIUS/4))
+
+    # screen.blit( font.render( <text>, True, <color> ), <location> )
+    screen.blit(FONT.render("|00>", True, WHITE), (30, 30))
+    screen.blit(FONT.render("|01>", True, WHITE), (230, 30))
+    screen.blit(FONT.render("|10>", True, WHITE), (30, 230))
+    screen.blit(FONT.render("|11>", True, WHITE), (230, 230))
+
+    pygame.display.flip()
         
 
 if __name__ == "__main__":
     print()
     state = F.str_to_state(input("Please give starting state: "))
+
+    pygame.init()
+
     Puzzle(state)
+
+    pygame.display.quit()
