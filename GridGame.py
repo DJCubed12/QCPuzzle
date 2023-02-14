@@ -123,7 +123,12 @@ def main():
 
     try:
         while True:
+            rects = []
             handle_events()
+            for a, b, p in ((0, 0, '1'), (0, 1, 'i'), (1, 0, '-1'), (1, 1, '-i')):
+                rects.append(draw_circles(screen, a, b, 1, p))
+
+            pygame.display.update(rects)
     except Quit:
         pygame.display.quit()
         return None
@@ -135,6 +140,19 @@ def handle_events():
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Check buttons
             pass
+
+
+def draw_circles(screen, bot: bool, left: bool, radius: int, phase: str):
+    """ Draw a state's circle according to its name, radius and phase. bot and left correspond to its position on the screen (both true => |00>). 0 <= radius <= 1. """
+    centerx, centery = 9*SIZE_FACTOR, 3*SIZE_FACTOR
+    if bot:
+        centery += 4*SIZE_FACTOR
+    if left:
+        centerx -= 4*SIZE_FACTOR
+
+    r = pygame.draw.circle(screen, BLACK, (centerx, centery), 2*SIZE_FACTOR)
+    pygame.draw.circle(screen, COLOR_CODE[phase], (centerx, centery), radius*2*SIZE_FACTOR)
+    return r
 
 
 def init():
