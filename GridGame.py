@@ -6,22 +6,15 @@ import Funcs as F
 from Constants import GATES
 from math import isclose
 
-SCREEN_SIZE = (400, 400)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+SIZE_FACTOR = 30
+BLACK = pygame.Color(0, 0, 0)
+WHITE = pygame.Color(255, 255, 255)
 COLOR_CODE = {
     '1': (255, 0, 0),
     'i': (0, 255, 0),
     '-1': (0, 0, 255),
     '-i': (255, 0, 255)
 }
-COORDS = (
-    (90, 90),  # |00>
-    (90, 290), # |01>
-    (290, 90), # |10>
-    (290, 290) # |11>
-)
-NORM_RADIUS = 20
 
 
 def Puzzle(state=None):
@@ -118,15 +111,70 @@ def display(state, screen):
     screen.blit(FONT.render("|10>", True, WHITE), (30, 230))
     screen.blit(FONT.render("|11>", True, WHITE), (230, 230))
 
+    for event in pygame.event.get():
+        pass
+
     pygame.display.flip()
         
 
-if __name__ == "__main__":
-    print()
-    state = F.str_to_state(input("Please give starting state: "))
+def main():
+    """ High level interface """
+    screen, font = init()
+
+    try:
+        while True:
+            handle_events()
+    except Quit:
+        pygame.display.quit()
+        return None
+
+def handle_events():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            raise Quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Check buttons
+            pass
+
+
+def init():
+    """ Create pygame window, pick starting state. """
+    # state = F.str_to_state(input("Please give starting state: "))
+    state = F.str_to_state("|00>")
 
     pygame.init()
+    screen = pygame.display.set_mode((12*SIZE_FACTOR, 12*SIZE_FACTOR))
+    font = pygame.font.SysFont("Britannic Bold", SIZE_FACTOR)
 
-    Puzzle(state)
+    screen.fill(BLACK)
+    draw_frame(screen, font)
 
-    pygame.display.quit()
+    pygame.display.flip()
+    return screen, font
+
+def draw_frame(screen, font):
+    """ Draws buttons and labels. """
+    r = pygame.Rect(0, 0, 2*SIZE_FACTOR, 2*SIZE_FACTOR)
+
+    button_sequence = ((pygame.Color("coral"), "CNOT"), (pygame.Color("coral1"), "H"), (pygame.Color("coral2"), "Z"), (pygame.Color("coral3"), "Y"), (pygame.Color("coral4"), "X"))
+
+    for color, label in button_sequence:
+        pygame.draw.rect(screen, color, r)
+        screen.blit(font.render(label, True, WHITE), r)
+        r.y += 2*SIZE_FACTOR
+    
+    for color, label in reversed(button_sequence):
+        r.x += 2*SIZE_FACTOR
+        pygame.draw.rect(screen, color, r)
+        screen.blit(font.render(label, True, WHITE), r)
+
+
+class Quit(Exception):
+    """ Signifies the user wants to quit. """
+    pass
+
+
+if __name__ == "__main__":
+    print()
+
+    main()
