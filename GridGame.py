@@ -125,8 +125,8 @@ def main():
         while True:
             rects = []
             handle_events()
-            for a, b, p in ((0, 0, '1'), (0, 1, 'i'), (1, 0, '-1'), (1, 1, '-i')):
-                rects.append(draw_circles(screen, a, b, 1, p))
+
+            rects.extend(draw_states(screen, (0.5, 0+.5j, -0.5, 0-0.5j)))
 
             pygame.display.update(rects)
     except Quit:
@@ -141,14 +141,36 @@ def handle_events():
             # Check buttons
             pass
 
+def draw_states(screen, state):
+    """ Takes a np.array of 4 representing the quantum state and draws to screen. Returns rects needed to be updated. """
+    rects = []
+    for i2 in (0, 1):
+        for i1 in (0, 1):
+            r, p = get_statevector(state[2*i2 + i1])
+            rects.append(draw_circles(screen, i1, i2, r, p))
+    return rects
 
-def draw_circles(screen, bot: bool, left: bool, radius: int, phase: str):
-    """ Draw a state's circle according to its name, radius and phase. bot and left correspond to its position on the screen (both true => |00>). 0 <= radius <= 1. """
-    centerx, centery = 9*SIZE_FACTOR, 3*SIZE_FACTOR
-    if bot:
-        centery += 4*SIZE_FACTOR
-    if left:
-        centerx -= 4*SIZE_FACTOR
+def get_statevector(complex_n):
+    """ Returns (radius of circle for draw_circles, phase string) """
+    if complex_n.real > 1e-15:
+        phase = "1"
+    elif complex_n.real < -1e-15:
+        phase = "-1"
+    elif complex_n.imag > 1e-15:
+        phase = "i"
+    else:
+        phase = "-i"
+
+    radius = round(abs(complex_n ** 2), 2)
+    return radius, phase
+
+def draw_circles(screen, top: bool, right: bool, radius: int, phase: str):
+    """ Draw a state's circle according to its name, radius and phase. bot and left correspond to its position on the screen (both true => |11>). 0 <= radius <= 1. """
+    centerx, centery = 5*SIZE_FACTOR, 7*SIZE_FACTOR
+    if top:
+        centery -= 4*SIZE_FACTOR
+    if right:
+        centerx += 4*SIZE_FACTOR
 
     r = pygame.draw.circle(screen, BLACK, (centerx, centery), 2*SIZE_FACTOR)
     pygame.draw.circle(screen, COLOR_CODE[phase], (centerx, centery), radius*2*SIZE_FACTOR)
