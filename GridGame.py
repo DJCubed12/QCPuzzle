@@ -10,10 +10,10 @@ SIZE_FACTOR = 40
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
 COLOR_CODE = {
-    '1': pygame.Color("chartreuse2"),
-    'i': pygame.Color("chartreuse4"),
-    '-1': pygame.Color("cyan4"),
-    '-i': pygame.Color("cyan2")
+    '1': pygame.Color("orange2"),
+    'i': pygame.Color("yellow1"),
+    '-1': pygame.Color("limegreen"),
+    '-i': pygame.Color("deepskyblue3")
 }
 
 
