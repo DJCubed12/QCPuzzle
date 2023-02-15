@@ -10,21 +10,23 @@ SIZE_FACTOR = 40
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
 COLOR_CODE = {
-    '1': (255, 0, 0),
-    'i': (0, 255, 0),
-    '-1': (0, 0, 255),
-    '-i': (255, 0, 255)
+    '1': pygame.Color("chartreuse2"),
+    'i': pygame.Color("chartreuse4"),
+    '-1': pygame.Color("cyan4"),
+    '-i': pygame.Color("cyan2")
 }
 
 
 def main(state=None):
     """ High level interface """
+    screen = init()
+    font = pygame.font.SysFont("Britannic Bold", int(3*SIZE_FACTOR/4))
+
     if state is None:
         state = F.str_to_state("|00>")
     state_str = F.state_to_str(state)
+    pygame.display.update(draw_states(screen, state))
 
-    screen = init()
-    font = pygame.font.SysFont("Britannic Bold", int(3*SIZE_FACTOR/4))
     try:
         while True:
             try:
