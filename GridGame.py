@@ -25,23 +25,51 @@ def main(state=None):
 
     try:
         while True:
-            rects = []
-            handle_events()
+            if handle_events(state):
+                # new state. line 32 and 34 should be nested
+                pass
 
-            rects.extend(draw_states(screen, (0.5, 0+.5j, -0.5, 0-0.5j)))
+            rects = draw_states(screen, state)
 
             pygame.display.update(rects)
     except Quit:
         pygame.display.quit()
         return None
 
-def handle_events():
+def handle_events(state):
+    """ Handles gate buttons and their appropriate operations. Returns new state. """
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise Quit()
+        elif (event.type == pygame.KEYDOWN) and (event.key == pygame.K_ESCAPE):
+            raise Quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Check buttons
-            pass
+            x, y = pygame.mouse.get_pos()
+            if x <= 2*SIZE_FACTOR:
+                # Vertical Button
+                if y < 2*SIZE_FACTOR:     # CNOT
+                    pass
+                elif y < 4*SIZE_FACTOR:   # H
+                    pass
+                elif y < 6*SIZE_FACTOR:   # Z
+                    pass
+                elif y < 8*SIZE_FACTOR:   # Y
+                    pass
+                elif y <= 10*SIZE_FACTOR: # X
+                    pass
+            elif y >= 10*SIZE_FACTOR:
+                # Horizontal Button
+                if (2*SIZE_FACTOR <= x < 4*SIZE_FACTOR):  # X
+                    pass
+                elif x < 6*SIZE_FACTOR:   # Y
+                    pass
+                elif x < 8*SIZE_FACTOR:   # Z
+                    pass
+                elif x < 10*SIZE_FACTOR:  # H
+                    pass
+                else:                     # CNOT
+                    pass
 
 
 def draw_states(screen, state):
