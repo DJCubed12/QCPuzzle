@@ -6,7 +6,7 @@ import Funcs as F
 from Constants import GATES
 from math import isclose
 
-SIZE_FACTOR = 30
+SIZE_FACTOR = 40
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
 COLOR_CODE = {
@@ -21,23 +21,38 @@ def main(state=None):
     """ High level interface """
     if state is None:
         state = F.str_to_state("|00>")
-    screen, font = init()
+    state_str = F.state_to_str(state)
 
+    screen = init()
+    font = pygame.font.SysFont("Britannic Bold", int(3*SIZE_FACTOR/4))
     try:
         while True:
-            if handle_events(state):
-                # new state. line 32 and 34 should be nested
+            try:
+                # Returns (new_state, gate_str) or None (would raises TypeError)
+                new_state, gate_str = handle_events(state)  
+                rects = draw_states(screen, new_state)
+
+                label_rect = pygame.Rect(0, 10*SIZE_FACTOR, 2*SIZE_FACTOR, 2*SIZE_FACTOR)
+                rects.append(label_rect)
+
+                pygame.draw.rect(screen, BLACK, label_rect)
+
+                screen.blit(font.render(gate_str + state_str, False, WHITE), label_rect)
+
+                state = new_state
+                state_str = F.state_to_str(state)
+
+                screen.blit(font.render(' = ' + state_str, False, WHITE), label_rect.move(0, SIZE_FACTOR/2))
+
+                pygame.display.update(rects)
+            except TypeError:
                 pass
-
-            rects = draw_states(screen, state)
-
-            pygame.display.update(rects)
     except Quit:
         pygame.display.quit()
         return None
 
 def handle_events(state):
-    """ Handles gate buttons and their appropriate operations. Returns new state. """
+    """ Handles gate buttons and their appropriate operations. Returns new state. Returns (new state, string representation of gate) """
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise Quit()
@@ -46,30 +61,49 @@ def handle_events(state):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Check buttons
             x, y = pygame.mouse.get_pos()
-            if x <= 2*SIZE_FACTOR:
-                # Vertical Button
+            if x <= 2*SIZE_FACTOR:  # LEFT SIDE
+                first_q = False
                 if y < 2*SIZE_FACTOR:     # CNOT
-                    pass
+                    gate_str = "CNOT12"
                 elif y < 4*SIZE_FACTOR:   # H
-                    pass
+                    gate_str = "H"
                 elif y < 6*SIZE_FACTOR:   # Z
-                    pass
+                    gate_str = "Z"
                 elif y < 8*SIZE_FACTOR:   # Y
-                    pass
+                    gate_str = "Y"
                 elif y <= 10*SIZE_FACTOR: # X
-                    pass
-            elif y >= 10*SIZE_FACTOR:
-                # Horizontal Button
-                if (2*SIZE_FACTOR <= x < 4*SIZE_FACTOR):  # X
-                    pass
+                    gate_str = "X"
+                else:
+                    continue
+            elif y >= 10*SIZE_FACTOR:  # BOTTOM ROW
+                first_q = True
+                if x < 2*SIZE_FACTOR:  # Bot left corner
+                    continue
+                elif x < 4*SIZE_FACTOR:   # X
+                    gate_str = "X"
                 elif x < 6*SIZE_FACTOR:   # Y
-                    pass
+                    gate_str = "Y"
                 elif x < 8*SIZE_FACTOR:   # Z
-                    pass
+                    gate_str = "Z"
                 elif x < 10*SIZE_FACTOR:  # H
-                    pass
+                    gate_str = "H"
                 else:                     # CNOT
-                    pass
+                    gate_str = "CNOT21"
+            else:  # MIDDLE SCREEN
+                continue
+
+            # Only mouse presses on actual buttons make it to this point
+            if len(gate_str) < 2:
+                if first_q:
+                    gate = np.kron(GATES[gate_str], GATES['I'])
+                    gate_str += 'I'
+                else:
+                    gate = np.kron(GATES['I'], GATES[gate_str])
+                    gate_str = 'I' + gate_str
+            else:
+                gate = GATES[gate_str]
+            
+            return np.matmul(gate, state), gate_str
 
 
 def draw_states(screen, state):
@@ -121,7 +155,7 @@ def init():
     draw_frame(screen, font)
 
     pygame.display.flip()
-    return screen, font
+    return screen
 
 def draw_frame(screen, font):
     """ Draws buttons and labels. """
@@ -151,9 +185,5 @@ class Quit(Exception):
 
 
 if __name__ == "__main__":
-    if SIZE_FACTOR % 2:
-        SIZE_FACTOR += 1
-
-    print()
-
+    SIZE_FACTOR -= SIZE_FACTOR % 2  # Ensures even number
     main()
