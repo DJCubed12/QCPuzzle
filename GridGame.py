@@ -58,8 +58,11 @@ def handle_events(state):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise Quit()
-        elif (event.type == pygame.KEYDOWN) and (event.key == pygame.K_ESCAPE):
-            raise Quit()
+        elif event.type == pygame.KEYDOWN: 
+            if event.key == pygame.K_ESCAPE:
+                raise Quit()
+            elif event.key == pygame.K_r:  # Reset
+                return F.str_to_state("|00>"), '[RESET]'
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Check buttons
             x, y = pygame.mouse.get_pos()
