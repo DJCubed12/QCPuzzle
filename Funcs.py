@@ -80,7 +80,7 @@ def state_to_str(state):
     for val, prefix in ((1, ''), (-1, '-'), (1j, 'i'), (-1j, '-i')):
         # Outer loop to check for global phase if matched to no standard state
         for s, name in C.state_table:
-            if np.all(np.isclose(val * state, s, 0, 1e-15)):
+            if np.all(np.isclose(state / val, s, 0, 1e-15)):
                 return prefix + name
     else:
         # If this happens often, consider multiplying by i and try again
