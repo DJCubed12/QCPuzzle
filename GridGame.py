@@ -20,7 +20,7 @@ COLOR_CODE = {
 def main(state=None):
     """ High level interface """
     screen = init()
-    font = pygame.font.SysFont("Britannic Bold", int(3*SIZE_FACTOR/4))
+    font = pygame.font.SysFont("Britannic Bold", int(5*SIZE_FACTOR/8))
 
     if state is None:
         state = F.str_to_state("|00>")
@@ -34,17 +34,17 @@ def main(state=None):
                 new_state, gate_str = handle_events(state)  
                 rects = draw_states(screen, new_state)
 
-                label_rect = pygame.Rect(0, 10*SIZE_FACTOR, 2*SIZE_FACTOR, 2*SIZE_FACTOR)
+                label_rect = pygame.Rect(5*SIZE_FACTOR, 9.5*SIZE_FACTOR, 4*SIZE_FACTOR, SIZE_FACTOR/2)
                 rects.append(label_rect)
 
                 pygame.draw.rect(screen, BLACK, label_rect)
 
-                screen.blit(font.render(gate_str + state_str, False, WHITE), label_rect)
-
+                math_txt = gate_str + state_str
                 state = new_state
                 state_str = F.state_to_str(state)
+                math_txt += " = " + state_str
 
-                screen.blit(font.render(' = ' + state_str, False, WHITE), label_rect.move(0, SIZE_FACTOR/2))
+                screen.blit(font.render(math_txt, False, WHITE), label_rect)
 
                 pygame.display.update(rects)
             except TypeError:
@@ -64,7 +64,7 @@ def handle_events(state):
             # Check buttons
             x, y = pygame.mouse.get_pos()
             if x <= 2*SIZE_FACTOR:  # LEFT SIDE
-                first_q = False
+                first_q = True
                 if y < 2*SIZE_FACTOR:     # CNOT
                     gate_str = "CNOT12"
                 elif y < 4*SIZE_FACTOR:   # H
@@ -75,10 +75,10 @@ def handle_events(state):
                     gate_str = "Y"
                 elif y <= 10*SIZE_FACTOR: # X
                     gate_str = "X"
-                else:
-                    continue
+                else:  # Bot left corner: multiply all by i
+                    return 1j * state, "i * "
             elif y >= 10*SIZE_FACTOR:  # BOTTOM ROW
-                first_q = True
+                first_q = False
                 if x < 2*SIZE_FACTOR:  # Bot left corner
                     continue
                 elif x < 4*SIZE_FACTOR:   # X
@@ -131,13 +131,13 @@ def get_statevector(complex_n):
     radius = round(abs(complex_n ** 2), 2)
     return radius, phase
 
-def draw_circles(screen, top: bool, right: bool, radius: int, phase: str):
+def draw_circles(screen, right: bool, top: bool, radius: int, phase: str):
     """ Draw a state's circle according to its name, radius and phase. bot and left correspond to its position on the screen (both true => |11>). 0 <= radius <= 1. """
     centerx, centery = 5*SIZE_FACTOR, 7*SIZE_FACTOR
-    if top:
-        centery -= 4*SIZE_FACTOR
     if right:
         centerx += 4*SIZE_FACTOR
+    if top:
+        centery -= 4*SIZE_FACTOR
 
     r = pygame.draw.circle(screen, BLACK, (centerx, centery), 2*SIZE_FACTOR)
     pygame.draw.circle(screen, COLOR_CODE[phase], (centerx, centery), radius*2*SIZE_FACTOR)
@@ -170,6 +170,9 @@ def draw_frame(screen, font):
         screen.blit(font.render(label, False, WHITE), r)
         r.y += 2*SIZE_FACTOR
     
+    pygame.draw.rect(screen, pygame.Color("darkred"), r)
+    screen.blit(font.render("i", False, WHITE), r)
+
     for color, label in reversed(button_sequence):
         r.x += 2*SIZE_FACTOR
         pygame.draw.rect(screen, color, r)
