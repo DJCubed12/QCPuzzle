@@ -2,7 +2,7 @@
 
 import numpy as np
 import pygame
-import Funcs as F
+from Funcs import state_to_str
 from Constants import GATES, Q0  # Dictionary of basic gates, |0> state
 
 SIZE_FACTOR = 40
@@ -39,7 +39,7 @@ def main():
 
                 math_txt = gate_str + state_str
                 state = new_state
-                state_str = F.state_to_str(state)
+                state_str = state_to_str(state)
                 math_txt += " = " + state_str
 
                 screen.blit(font.render(math_txt, False, WHITE), label_rect)
