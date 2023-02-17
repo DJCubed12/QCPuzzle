@@ -3,8 +3,7 @@
 import numpy as np
 import pygame
 import Funcs as F
-from Constants import GATES
-from math import isclose
+from Constants import GATES, Q0  # Dictionary of basic gates, |0> state
 
 SIZE_FACTOR = 40
 BLACK = pygame.Color(0, 0, 0)
@@ -17,22 +16,21 @@ COLOR_CODE = {
 }
 
 
-def main(state=None):
+def main():
     """ High level interface """
     screen = init()
     font = pygame.font.SysFont("Britannic Bold", int(5*SIZE_FACTOR/8))
 
-    if state is None:
-        state = F.str_to_state("|00>")
-    state_str = F.state_to_str(state)
-    pygame.display.update(draw_states(screen, state))
+    state = np.kron(Q0, Q0)
+    state_str = "|00>"
+    pygame.display.update(draw_state(screen, state))
 
     try:
         while True:
             try:
-                # Returns (new_state, gate_str) or None (would raises TypeError)
+                # Returns (new_state, gate_str) if state was changed, else None (would raises TypeError)
                 new_state, gate_str = handle_events(state)  
-                rects = draw_states(screen, new_state)
+                rects = draw_state(screen, new_state)
 
                 label_rect = pygame.Rect(5*SIZE_FACTOR, 9.5*SIZE_FACTOR, 4*SIZE_FACTOR, SIZE_FACTOR/2)
                 rects.append(label_rect)
@@ -51,18 +49,19 @@ def main(state=None):
                 pass
     except Quit:
         pygame.display.quit()
-        return None
 
 def handle_events(state):
-    """ Handles gate buttons and their appropriate operations. Returns new state. Returns (new state, string representation of gate) """
+    """ Handles gate buttons and their appropriate operations. Returns (new state, string representation of gate applied). Raises Quit if user closes window. """
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             raise Quit()
+        
         elif event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_ESCAPE:
                 raise Quit()
             elif event.key == pygame.K_r:  # Reset
-                return F.str_to_state("|00>"), '[RESET]'
+                return np.kron(Q0, Q0), '[RESET]'
+            
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Check buttons
             x, y = pygame.mouse.get_pos()
@@ -82,9 +81,8 @@ def handle_events(state):
                     return 1j * state, "i * "
             elif y >= 10*SIZE_FACTOR:  # BOTTOM ROW
                 first_q = False
-                if x < 2*SIZE_FACTOR:  # Bot left corner
-                    continue
-                elif x < 4*SIZE_FACTOR:   # X
+                # Bottom left corner is caught under above if statement
+                if x < 4*SIZE_FACTOR:     # X
                     gate_str = "X"
                 elif x < 6*SIZE_FACTOR:   # Y
                     gate_str = "Y"
@@ -94,7 +92,7 @@ def handle_events(state):
                     gate_str = "H"
                 else:                     # CNOT
                     gate_str = "CNOT21"
-            else:  # MIDDLE SCREEN
+            else:  # MIDDLE OF SCREEN
                 continue
 
             # Only mouse presses on actual buttons make it to this point
@@ -111,8 +109,8 @@ def handle_events(state):
             return np.matmul(gate, state), gate_str
 
 
-def draw_states(screen, state):
-    """ Takes a np.array of 4 representing the quantum state and draws to screen. Returns rects needed to be updated. """
+def draw_state(screen, state):
+    """ Takes a np.array of 4 representing the quantum state and draws to screen. Returns pygame.Rects needed to be updated. """
     rects = []
     for i2 in (0, 1):
         for i1 in (0, 1):
@@ -135,7 +133,7 @@ def get_statevector(complex_n):
     return radius, phase
 
 def draw_circles(screen, right: bool, top: bool, radius: int, phase: str):
-    """ Draw a state's circle according to its name, radius and phase. bot and left correspond to its position on the screen (both true => |11>). 0 <= radius <= 1. """
+    """ Draw a statevector's circle according to its position, radius and phase. right and top correspond to its position on the screen (both true => |11>). 0 <= radius <= 1. """
     centerx, centery = 5*SIZE_FACTOR, 7*SIZE_FACTOR
     if right:
         centerx += 4*SIZE_FACTOR
@@ -148,10 +146,7 @@ def draw_circles(screen, right: bool, top: bool, radius: int, phase: str):
 
 
 def init():
-    """ Create pygame window, pick starting state. """
-    # state = F.str_to_state(input("Please give starting state: "))
-    state = F.str_to_state("|00>")
-
+    """ Set up pygame window and static UI elements. Returns pygame.Surface of the window. """
     pygame.init()
     screen = pygame.display.set_mode((12*SIZE_FACTOR, 12*SIZE_FACTOR))
     font = pygame.font.SysFont("Britannic Bold", SIZE_FACTOR)
