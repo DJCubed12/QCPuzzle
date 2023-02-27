@@ -32,7 +32,7 @@ def main():
                 new_state, gate_str = handle_events(state)  
                 rects = draw_state(screen, new_state)
 
-                label_rect = pygame.Rect(5*SIZE_FACTOR, 9.5*SIZE_FACTOR, 4*SIZE_FACTOR, SIZE_FACTOR/2)
+                label_rect = pygame.Rect(5*SIZE_FACTOR, 11.5*SIZE_FACTOR, 4*SIZE_FACTOR, SIZE_FACTOR/2)
                 rects.append(label_rect)
 
                 pygame.draw.rect(screen, BLACK, label_rect)
@@ -71,11 +71,13 @@ def handle_events(state):
                     gate_str = "CNOT12"
                 elif y < 4*SIZE_FACTOR:   # H
                     gate_str = "H"
-                elif y < 6*SIZE_FACTOR:   # Z
+                elif y < 6*SIZE_FACTOR:   # S
+                    gate_str = "S"
+                elif y < 8*SIZE_FACTOR:   # Z
                     gate_str = "Z"
-                elif y < 8*SIZE_FACTOR:   # Y
+                elif y < 10*SIZE_FACTOR:   # Y
                     gate_str = "Y"
-                elif y <= 10*SIZE_FACTOR: # X
+                elif y <= 12*SIZE_FACTOR: # X
                     gate_str = "X"
                 else:  # Bot left corner: multiply all by i
                     return 1j * state, "i * "
@@ -88,7 +90,9 @@ def handle_events(state):
                     gate_str = "Y"
                 elif x < 8*SIZE_FACTOR:   # Z
                     gate_str = "Z"
-                elif x < 10*SIZE_FACTOR:  # H
+                elif x < 10*SIZE_FACTOR:  # S
+                    gate_str = "S"
+                elif x < 12*SIZE_FACTOR:  # H
                     gate_str = "H"
                 else:                     # CNOT
                     gate_str = "CNOT21"
@@ -134,11 +138,11 @@ def get_statevector(complex_n):
 
 def draw_circles(screen, right: bool, top: bool, radius: int, phase: str):
     """ Draw a statevector's circle according to its position, radius and phase. right and top correspond to its position on the screen (both true => |11>). 0 <= radius <= 1. """
-    centerx, centery = 5*SIZE_FACTOR, 7*SIZE_FACTOR
+    centerx, centery = 5*SIZE_FACTOR, 9*SIZE_FACTOR
     if right:
-        centerx += 4*SIZE_FACTOR
+        centerx += 6*SIZE_FACTOR
     if top:
-        centery -= 4*SIZE_FACTOR
+        centery -= 6*SIZE_FACTOR
 
     r = pygame.draw.circle(screen, BLACK, (centerx, centery), 2*SIZE_FACTOR)
     pygame.draw.circle(screen, COLOR_CODE[phase], (centerx, centery), radius*2*SIZE_FACTOR)
@@ -148,7 +152,7 @@ def draw_circles(screen, right: bool, top: bool, radius: int, phase: str):
 def init():
     """ Set up pygame window and static UI elements. Returns pygame.Surface of the window. """
     pygame.init()
-    screen = pygame.display.set_mode((12*SIZE_FACTOR, 12*SIZE_FACTOR))
+    screen = pygame.display.set_mode((14*SIZE_FACTOR, 14*SIZE_FACTOR))
     font = pygame.font.SysFont("Britannic Bold", SIZE_FACTOR)
 
     screen.fill(BLACK)
@@ -161,7 +165,12 @@ def draw_frame(screen, font):
     """ Draws buttons and labels. """
     r = pygame.Rect(0, 0, 2*SIZE_FACTOR, 2*SIZE_FACTOR)
 
-    button_sequence = ((pygame.Color("coral"), "CNOT"), (pygame.Color("coral1"), "H"), (pygame.Color("coral2"), "Z"), (pygame.Color("coral3"), "Y"), (pygame.Color("coral4"), "X"))
+    button_sequence = ((pygame.Color("green"), "CNOT"),
+                       (pygame.Color("coral"), "H"),
+                       (pygame.Color("coral1"), "S"),
+                       (pygame.Color("coral2"), "Z"),
+                       (pygame.Color("coral3"), "Y"),
+                       (pygame.Color("coral4"), "X"))
 
     for color, label in button_sequence:
         pygame.draw.rect(screen, color, r)
@@ -176,10 +185,10 @@ def draw_frame(screen, font):
         pygame.draw.rect(screen, color, r)
         screen.blit(font.render(label, False, WHITE), r)
 
-    screen.blit(font.render("|00>", False, WHITE), (2*SIZE_FACTOR, 9*SIZE_FACTOR))
-    screen.blit(font.render("|01>", False, WHITE), (10*SIZE_FACTOR, 9*SIZE_FACTOR))
+    screen.blit(font.render("|00>", False, WHITE), (2*SIZE_FACTOR, 11*SIZE_FACTOR))
+    screen.blit(font.render("|01>", False, WHITE), (12*SIZE_FACTOR, 11*SIZE_FACTOR))
     screen.blit(font.render("|10>", False, WHITE), (2*SIZE_FACTOR, SIZE_FACTOR/2))
-    screen.blit(font.render("|11>", False, WHITE), (10*SIZE_FACTOR, SIZE_FACTOR/2))
+    screen.blit(font.render("|11>", False, WHITE), (12*SIZE_FACTOR, SIZE_FACTOR/2))
 
 
 class Quit(Exception):

@@ -6,6 +6,7 @@ from Constants import GATES
 
 
 GATES['Y'] *= 0-1j
+del GATES['S']
 
 
 def Puzzle(state=None):

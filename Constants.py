@@ -21,6 +21,7 @@ X = np.array(((0, 1), (1, 0)), dtype = complex)
 Y = np.array(((0, -1j), (1j, 0)), dtype = complex)
 Z = np.array(((1, 0), (0, -1)), dtype = complex)
 H = np.array(((1, 1), (1, -1)), dtype = complex) / np.sqrt(2)
+S = np.array(((1, 0), (0, 1j)), dtype = complex)
 
 # Two qubit gates
 CNOT12 = np.array(((1, 0, 0, 0),
@@ -38,6 +39,7 @@ GATES = {
     'Y': Y,
     'Z': Z,
     'H': H,
+    'S': S,
     'CNOT12': CNOT12,
     'CNOT21': CNOT21
 }
